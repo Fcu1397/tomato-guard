@@ -1,0 +1,64 @@
+.ff-bsod-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0078d7;
+    color: white;
+    font-family: 'Segoe UI', sans-serif, system-ui;
+    margin: 0;
+    padding: 10%;
+    z-index: 2147483647;
+    box-sizing: border-box;
+}
+
+.ff-bsod-content h1 {
+    font-size: 10em;
+    font-weight: 100;
+    margin: 0;
+}
+
+.ff-bsod-content p {
+    font-size: 1.5em;
+}
+
+.ff-bsod-unlock-section {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ff-bsod-unlock-section input {
+    padding: 8px;
+    min-width: 300px;
+    font-size: 1em;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+}
+
+.ff-bsod-unlock-section input::placeholder {
+    color: #ccc;
+}
+
+.ff-bsod-unlock-section button {
+    padding: 8px 16px;
+    font-size: 1em;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+}
+
+.ff-bsod-error {
+    color: #ffdddd !important;
+    margin: 0 !important;
+    font-size: 1em !important;
+}
+
+.ff-bsod-details {
+    margin-top: 50px;
+    font-size: 0.8em;
+}
