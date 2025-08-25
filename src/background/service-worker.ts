@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, STORAGE_KEYS, TimerData, TimerState } from '../shared/types';
+import { DEFAULT_SETTINGS, STORAGE_KEYS, TimerData, TimerState } from '../shared/types.js';
 
 const ALARM_NAME = 'focusForgeAlarm';
 
@@ -92,7 +92,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         await chrome.storage.local.set({ [STORAGE_KEYS.CYCLE_COUNT]: newCycleCount });
         await startTimer('BREAKING'); // Set BREAKING state and start break timer
         for (const tab of allTabs) {
-          if (tab.id) {
+          if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('https://chrome.google.com/webstore')) {
             await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['assets/overlay.css'] });
             await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content-script.js'] });
           }
@@ -100,6 +100,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       }
     } else if (state === 'BREAKING') {
       await stopTimer();
+      const allTabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
+      for (const tab of allTabs) {
+        if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('https://chrome.google.com/webstore')) {
+          // Remove overlay styles and scripts to restore the original page
+          await chrome.scripting.removeCSS({ target: { tabId: tab.id }, files: ['assets/overlay.css'] });
+          await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['restore-original.js'] });
+        }
+      }
     }
   }
 });
