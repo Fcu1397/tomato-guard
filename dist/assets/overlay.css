@@ -40,8 +40,8 @@
 
 .ff-breathing-halo {
   position: absolute;
-  width: 250px;
-  height: 250px;
+  width: 500px;
+  height: 500px;
   border-radius: 50%;
   background-color: rgba(0, 255, 135, 0.1);
   animation: breathing-halo 4s ease-in-out infinite;

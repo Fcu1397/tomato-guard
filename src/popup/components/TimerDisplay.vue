@@ -5,8 +5,8 @@
 <script setup lang="ts">
 import { ref, watch, onUnmounted } from 'vue';
 import type { PropType } from 'vue';
-import type { TimerState } from '@/shared/types';
-import { DEFAULT_SETTINGS } from '@/shared/types';
+import type { TimerState, Settings } from '@/shared/types';
+import { DEFAULT_SETTINGS, STORAGE_KEYS } from '@/shared/types';
 
 const props = defineProps({
   endTime: {
@@ -35,12 +35,23 @@ const updateDisplay = () => {
   formattedTime.value = formatTime(remaining);
 };
 
+const getIdleTime = async () => {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    const settings: Settings = data[STORAGE_KEYS.SETTINGS] || DEFAULT_SETTINGS;
+    formattedTime.value = formatTime(settings.focusDuration * 60 * 1000);
+  } catch (e) {
+    console.error("Could not retrieve settings, using default", e);
+    formattedTime.value = formatTime(DEFAULT_SETTINGS.focusDuration * 60 * 1000);
+  }
+}
+
 watch(() => [props.endTime, props.state], () => {
   if (intervalId) clearInterval(intervalId);
 
   if (props.state === 'IDLE') {
-    // In idle, show the default focus duration
-    formattedTime.value = formatTime(DEFAULT_SETTINGS.focusDuration * 60 * 1000);
+    // In idle, show the user-defined focus duration from storage
+    getIdleTime();
   } else {
     updateDisplay();
     intervalId = window.setInterval(updateDisplay, 1000);

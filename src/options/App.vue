@@ -77,7 +77,7 @@ const saveSettings = async () => {
       const keyMaterial = await crypto.subtle.importKey('raw', str2ab(newPassword.value), { name: 'PBKDF2' }, false, ['deriveBits']);
       const derivedBits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' }, keyMaterial, 256);
       settingsToSave.passwordHash = ab2hex(derivedBits);
-      settingsToSave.salt = ab2hex(salt);
+      settingsToSave.salt = ab2hex(salt.buffer);
     }
 
     await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: settingsToSave });
