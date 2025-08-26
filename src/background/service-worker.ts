@@ -29,16 +29,31 @@ async function setTimerData(data: TimerData): Promise<void> {
   }
 }
 
+// --- Notification Helper ---
+function showNotification(title: string, message: string) {
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'assets/icons/icon128.png',
+    title,
+    message
+  });
+}
+
 // --- Timer Logic ---
 
 async function startTimer(state: TimerState) {
   await chrome.alarms.clear(ALARM_NAME);
   const settings = (await chrome.storage.local.get(STORAGE_KEYS.SETTINGS))[STORAGE_KEYS.SETTINGS] || DEFAULT_SETTINGS;
   const duration = state === 'FOCUSING' ? settings.focusDuration : settings.breakDuration;
-  
+
   const endTime = Date.now() + duration * 60 * 1000;
   await chrome.alarms.create(ALARM_NAME, { delayInMinutes: duration });
   await setTimerData({ state, endTime });
+
+  // Show notification when timer starts
+  const notificationTitle = state === 'FOCUSING' ? 'Focus Time Started' : 'Break Time Started';
+  const notificationMessage = `Your ${state === 'FOCUSING' ? 'focus' : 'break'} session will end in ${duration} minutes.`;
+  showNotification(notificationTitle, notificationMessage);
 }
 
 async function stopTimer() {
@@ -98,7 +113,13 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
           }
         }
       }
+
+      // Notify user that focus time has ended
+      showNotification('Focus Time Ended', 'Time to take a break!');
     } else if (state === 'BREAKING') {
+      // Notify user that break time has ended
+      showNotification('Break Time Ended', 'Time to get back to work!');
+
       await stopTimer();
       const allTabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
       for (const tab of allTabs) {
